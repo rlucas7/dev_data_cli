@@ -7,7 +7,7 @@ const fs = require('fs');
 const readline = require('readline');
 const verbose = false;
 
-
+//TODO: setup logging for this script
 var processJsonl = async function processJsonlFile(filePath, opts) {
     let autoCompletions = [];
     const fileStream = fs.createReadStream(filePath);
@@ -32,14 +32,29 @@ var processJsonl = async function processJsonlFile(filePath, opts) {
         console.log(`record 0 is of type ${typeof(autoCompletions[0])}`);
         console.log(`record 30 is of type ${typeof(autoCompletions[30])}`);
     }
-    return autoCompletions;
+
+    let autoCompletionEntries = [];
+    console.log(autoCompletionEntries[autoCompletionEntries.length-1]);
+    // const keepKeys = ["timestamp", "modelName", "eventName", "prompt", "completion", "accepted", "filepath"];
+    for (let i=0; i < autoCompletions.length; i++){
+        autoCompletionEntries.push({
+            timestamp: autoCompletions[i].timestamp,
+            modelName: autoCompletions[i].modelName,
+            eventName: autoCompletions[i].eventName,
+            prompt: autoCompletions[i].prompt,
+            completion: autoCompletions[i].completion,
+            accepted: autoCompletions[i].accepted,
+            filepath: autoCompletions[i].filepath
+        });
+    }
+   console.log(autoCompletionEntries[autoCompletionEntries.length-1]);
 };
 
 program
   .name('mycli')
   .description('A simple CLI tool example')
   .option('-v, --verbose', 'Enables verbose mode')
-  .option('-f, --filepath', 'Absolute filepath for the autocompletes files')
+  .option('-f, --filepath', 'Absolute filepath for the autocompletes file')
   .version('1.0.0');
 
 program.command('dev_data')
@@ -57,9 +72,8 @@ program.command('dev_data')
     }
     console.log('Processing your continue devData autocompletes!');
     let autoCompletesDevData = processJsonl(autoCompleteFile, opts);
-    // TODO: do some stuff with the data
-
+    console.log(`You have ${autoCompletesDevData[0]} autocompletes!`)
+    // for now lets parse all the data...
 });
 
 program.parse(process.argv);
-
