@@ -1,7 +1,7 @@
 {
   "name": "continue-devdata-cli-tool",
   "version": "1.0.0",
-  "description": "A simple CLI tool example",
+  "description": "A simple CLI tool for analyzing devData from continue",
   "main": "cli.js",
   "bin": {
     "mycli": "./cli.js"
