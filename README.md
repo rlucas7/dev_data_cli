@@ -54,13 +54,10 @@ mycli dev_data -f /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl
 
 # Not implemented
 
-- [] app logging
-- [] plots direct to filesystem
+- [] plots direct to filesystem or vscode window
 - [] experimental tracking
 
-App logging is pretty straightforward to add but I haven't hooked that in yet.
-Plots direct to filesystem needs to add the use of plotly directly rather than
-the wrapper that I use now `nodeplotlib`.
+The wrapper that I use now `nodeplotlib`, is not maintainted but works.
 
 Experimental tracking requires a bit more thinking but is a very handy idea.
 In essence you make a configuration change to the continue plugin, e.g. perhaps

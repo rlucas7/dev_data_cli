@@ -6,22 +6,29 @@ const { Command } = require('commander');
 const program = new Command();
 const fs = require('fs');
 const readline = require('readline');
-const verbose = false;
+const winston = require('winston');
 
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  // transports: [new winston.transports.Console()], // Uncomment to log to console
+  transports: [new winston.transports.File({ filename: 'dev_data_analyzer.log' })],
+});
 
-//TODO: setup logging for this script
 var processJsonl = async function processJsonlFile(filePath, opts) {
     let autoCompletions = [];
     const fileStream = fs.createReadStream(filePath);
     const rl = readline.createInterface({
         input: fileStream,
-        crlfDelay: Infinity // Handle Windows-style newlines (\r\n)
+        // claims to handle Windows-style newlines (\r\n)
+        // carriage return-line feed combination
+        crlfDelay: Infinity
     });
     for await (const line of rl) {
         try {
             const data = JSON.parse(line);
             if(opts.verbose){
-                console.log(data); // Example: log the parsed devdata-log objects
+                logger.info(data);
             }
             autoCompletions.push(data);
         } catch (error) {
@@ -29,15 +36,14 @@ var processJsonl = async function processJsonlFile(filePath, opts) {
         }
     }
     if(opts.verbose){
-        console.log('Finished processing JSONL file.');
-        console.log(`processed ${autoCompletions.length} records`);
-        console.log(`record 0 is of type ${typeof(autoCompletions[0])}`);
-        console.log(`record 30 is of type ${typeof(autoCompletions[30])}`);
+        logger.info('Finished processing JSONL file.');
+        logger.info(`processed ${autoCompletions.length} records`);
+        logger.info(`record 0 is of type ${typeof(autoCompletions[0])}`);
+        logger.info(`record 30 is of type ${typeof(autoCompletions[30])}`);
     }
 
     let autoCompletionEntries = [];
-    console.log(autoCompletionEntries[autoCompletionEntries.length-1]);
-    // const keepKeys = ["timestamp", "modelName", "eventName", "prompt", "completion", "accepted", "filepath"];
+    logger.info(autoCompletionEntries[autoCompletionEntries.length-1]);
     let acceptedCounter = 0, rejectedCounter = 0;
     let X = [], Y=[];
     for (let i=0; i < autoCompletions.length; i++){
@@ -60,17 +66,16 @@ var processJsonl = async function processJsonlFile(filePath, opts) {
             } else {
                 rejectedCounter++;
             }
-            // console.log(`processed ${new Date(autoCompletions[i].timestamp)} of type: ${typeof(new Date(autoCompletions[i].timestamp))}`);
+            // logger.info(`processed ${new Date(autoCompletions[i].timestamp)} of type: ${typeof(new Date(autoCompletions[i].timestamp))}`);
         }
     }
    if(opts.verbose){
-       console.log(autoCompletionEntries[autoCompletionEntries.length-1]);
-       console.log(`processed ${autoCompletionEntries.length} autocompletes`);
+       logger.info(autoCompletionEntries[autoCompletionEntries.length-1]);
+       logger.info(`processed ${autoCompletionEntries.length} autocompletes`);
    } else {
-       console.log(`processed ${autoCompletionEntries.length} autocompletes, ${autoCompletions.length - autoCompletionEntries.length} were filtered out`);
-       // console.log(
+       logger.info(`processed ${autoCompletionEntries.length} autocompletes, ${autoCompletions.length - autoCompletionEntries.length} were filtered out`);
    }
-    console.log(`Of these ${acceptedCounter} were accepted, ${rejectedCounter} were rejected`);
+    logger.info(`Of these ${acceptedCounter} were accepted, ${rejectedCounter} were rejected`);
     if(opts.plot){
         const data = [{x: X, y: Y, type: 'scatter'}];
         plot(data);
@@ -91,13 +96,13 @@ program.command('analyze')
   .action(() => {
     const opts = program.opts();
     const user = process.env.USER;
-    console.log(`Hello ${user || 'stranger'}!`);
-    console.log(opts);
-    let autoCompleteFile = opts.filepath || '/Users/' + user + '/.continue/dev_data/0.2.0/autocomplete.jsonl';
-    console.log(`Using the autocompletes file at: ${autoCompleteFile}`);
-    console.log('Processing your continue devData autocompletes!');
+    logger.info(`Starting continue dev_data analysis for user: ${user || 'unknown'}`);
+    logger.info(`using cli argments: ${JSON.stringify(opts, null, 2)}`);
+    const autoCompleteFile = opts.filepath || '/Users/' + user + '/.continue/dev_data/0.2.0/autocomplete.jsonl';
+    logger.info(`Using the autocompletes file at: ${autoCompleteFile}`);
+    logger.info('Processing your continue devData autocompletes!');
     processJsonl(autoCompleteFile, opts);
-    console.log(`All done processing your continue devData autocompletes!`)
+    logger.info(`All done processing your continue devData autocompletes!`)
 });
 
 program.parse(process.argv);
