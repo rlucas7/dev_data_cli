@@ -78,21 +78,23 @@ var processJsonl = async function processJsonlFile(filePath, opts) {
 };
 
 program
-  .name('mycli')
+  .name('devData')
   .description('A simple CLI tool example')
   .option('-v, --verbose', 'Enables verbose mode')
-  .option('-f, --filepath <string>', 'Absolute filepath for the autocompletes file', '/Users/rlucas7/.continue/dev_data/0.2.0/autocomplete.jsonl')
+  .option('-f, --filepath <string>', 'Absolute filepath for the autocomplete.jsonl file. Defaults to /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl', undefined)
   .option('-e, --extension <string>', 'Filter the devData to only include file extensions of the given string', '.js')
   .option('-p, --plot', 'Enables plotting the devData')
   .version('1.0.0');
 
-program.command('dev_data')
-  .description('Greets the user')
+program.command('analyze')
+  .description('Analyzes the devData autocompletes file')
   .action(() => {
     const opts = program.opts();
-    let autoCompleteFile = "";
+    const user = process.env.USER;
+    console.log(`Hello ${user || 'stranger'}!`);
     console.log(opts);
-    autoCompleteFile = opts.filepath;
+    let autoCompleteFile = opts.filepath || '/Users/' + user + '/.continue/dev_data/0.2.0/autocomplete.jsonl';
+    console.log(`Using the autocompletes file at: ${autoCompleteFile}`);
     console.log('Processing your continue devData autocompletes!');
     processJsonl(autoCompleteFile, opts);
     console.log(`All done processing your continue devData autocompletes!`)

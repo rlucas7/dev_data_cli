@@ -4,7 +4,7 @@
   "description": "A simple CLI tool for analyzing devData from continue",
   "main": "cli.js",
   "bin": {
-    "mycli": "./cli.js"
+    "devdata-analyze": "./cli.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,7 +13,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "asciichart": "^1.5.25",
     "commander": "^14.0.0",
     "fs": "^0.0.1-security",
     "nodeplotlib": "^1.1.2",
