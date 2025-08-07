@@ -8,14 +8,8 @@ const fs = require('fs');
 const readline = require('readline');
 const winston = require('winston');
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  // transports: [new winston.transports.Console()], // Uncomment to log to console
-  transports: [new winston.transports.File({ filename: 'dev_data_analyzer.log' })],
-});
 
-var processJsonl = async function processJsonlFile(filePath, opts) {
+var processJsonl = async function processJsonlFile(filePath, opts, logger) {
     let autoCompletions = [];
     const fileStream = fs.createReadStream(filePath);
     const rl = readline.createInterface({
@@ -89,6 +83,7 @@ program
   .option('-f, --filepath <string>', 'Absolute filepath for the autocomplete.jsonl file. Defaults to /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl', undefined)
   .option('-e, --extension <string>', 'Filter the devData to only include file extensions of the given string', '.js')
   .option('-p, --plot', 'Enables plotting the devData')
+  .option('-l, --log-level <level>', 'Set the Winston log level (e.g., debug, info, warn, error)', 'info')
   .version('1.0.0');
 
 program.command('analyze')
@@ -96,13 +91,34 @@ program.command('analyze')
   .action(() => {
     const opts = program.opts();
     const user = process.env.USER;
+    const logger = winston.createLogger({
+        level: opts.logLevel || 'info',
+        format: winston.format.json(),
+        // transports: [new winston.transports.Console()], // Uncomment to log to console
+        transports: [new winston.transports.File({ filename: 'dev_data_analyzer.log' })],
+    });
     logger.info(`Starting continue dev_data analysis for user: ${user || 'unknown'}`);
     logger.info(`using cli argments: ${JSON.stringify(opts, null, 2)}`);
     const autoCompleteFile = opts.filepath || '/Users/' + user + '/.continue/dev_data/0.2.0/autocomplete.jsonl';
     logger.info(`Using the autocompletes file at: ${autoCompleteFile}`);
     logger.info('Processing your continue devData autocompletes!');
-    processJsonl(autoCompleteFile, opts);
+    processJsonl(autoCompleteFile, opts, logger);
     logger.info(`All done processing your continue devData autocompletes!`)
 });
+
+program.command('version')
+  .description('Displays the version of the devData CLI tool')
+  .action(() => {
+    console.log(`devData CLI version: ${program.version()}`);
+  });
+
+  program.on('--help', () => {
+    console.log('');
+    console.log('Examples:');
+    console.log('  $ devData analyze -f /path/to/autocomplete.jsonl -e .js -p');
+    console.log('  $ devData version');
+    console.log('');
+  });
+
 
 program.parse(process.argv);
