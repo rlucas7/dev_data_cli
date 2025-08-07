@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // commander or yargs are options
-const { plot } = require('nodeplotlib');
+const { plot, Layout } = require('nodeplotlib');
 const { Command } = require('commander');
 const program = new Command();
 const fs = require('fs');
@@ -36,16 +36,19 @@ var processJsonl = async function processJsonlFile(filePath, opts, logger) {
         logger.info(`record 30 is of type ${typeof(autoCompletions[30])}`);
     }
 
-    let autoCompletionEntries = [];
-    logger.info(autoCompletionEntries[autoCompletionEntries.length-1]);
+    const autoCompletionEntries = [];
     let acceptedCounter = 0, rejectedCounter = 0;
-    let X = [], Y=[];
+    // for plotting track the accepted and rejected separately
+    const X_a = [], Y_a=[], X_r = [], Y_r=[];
+    const dateFilter = new Date(opts.datetime)
     for (let i=0; i < autoCompletions.length; i++){
         // TODO: make this work with '*' extensions, e.g. all the files, an empty
         // string causes all files to be filters
-        if(opts.extension && autoCompletions[i].filepath.endsWith(opts.extension)){
-            X.push(new Date(autoCompletions[i].timestamp));
-            Y.push(autoCompletions[i].completion.length);
+        if(
+            opts.extension &&
+            autoCompletions[i].filepath.endsWith(opts.extension) &&
+            (opts.datetime === 'all' || new Date(autoCompletions[i].timestamp) >= dateFilter)
+        ){
             autoCompletionEntries.push({
                 timestamp: new Date(autoCompletions[i].timestamp),
                 modelName: autoCompletions[i].modelName,
@@ -56,11 +59,14 @@ var processJsonl = async function processJsonlFile(filePath, opts, logger) {
                 filepath: autoCompletions[i].filepath
             });
             if(autoCompletions[i].accepted){
+                X_a.push(new Date(autoCompletions[i].timestamp));
+                Y_a.push(autoCompletions[i].completion.length);
                 acceptedCounter++;
             } else {
+                X_r.push(new Date(autoCompletions[i].timestamp));
+                Y_r.push(autoCompletions[i].completion.length);
                 rejectedCounter++;
             }
-            // logger.info(`processed ${new Date(autoCompletions[i].timestamp)} of type: ${typeof(new Date(autoCompletions[i].timestamp))}`);
         }
     }
    if(opts.verbose){
@@ -69,10 +75,19 @@ var processJsonl = async function processJsonlFile(filePath, opts, logger) {
    } else {
        logger.info(`processed ${autoCompletionEntries.length} autocompletes, ${autoCompletions.length - autoCompletionEntries.length} were filtered out`);
    }
-    logger.info(`Of these ${acceptedCounter} were accepted, ${rejectedCounter} were rejected`);
+    logger.info(`Of these ${autoCompletionEntries.length} autocompletes, ${acceptedCounter} were accepted, ${rejectedCounter} were rejected`);
     if(opts.plot){
-        const data = [{x: X, y: Y, type: 'scatter'}];
-        plot(data);
+        if(opts.accepted){
+            const layout = { title: "accepted"};
+            const accepted_data = [{x: X_a, y: Y_a, mode: 'markers-r', type: 'scatter', name: 'accepted'}];
+            logger.info(`Plotting ${accepted_data.length} accepted autocompletes`);
+            plot(accepted_data, layout);
+        } else {
+            const layout = { title: "rejected"};
+            const rejected_data = [{x: X_r, y: Y_r, mode: 'markers-a', type: 'scatter', name: 'rejected'}];
+            logger.info(`Plotting ${rejected_data.length} rejected autocompletes`);
+            plot(rejected_data, layout);
+        }
     }
 };
 
@@ -83,6 +98,8 @@ program
   .option('-f, --filepath <string>', 'Absolute filepath for the autocomplete.jsonl file. Defaults to /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl', undefined)
   .option('-e, --extension <string>', 'Filter the devData to only include file extensions of the given string', '.js')
   .option('-p, --plot', 'Enables plotting the devData')
+  .option('-a, --accepted', 'Enables plotting the accepted autocompletes only, otherwise plots the rejected autocompletes', false)
+  .option('-d, --datetime <value>', 'Specify a datetime to stop at a specific date/time (e.g., "2025-08-06T10:30:00") will exclude all data before this date/time. If not specified, defaults to "all"', 'all')
   .option('-l, --log-level <level>', 'Set the Winston log level (e.g., debug, info, warn, error)', 'info')
   .version('1.0.0');
 
@@ -117,6 +134,8 @@ program.command('version')
     console.log('Examples:');
     console.log('  $ devData analyze -f /path/to/autocomplete.jsonl -e .js -p');
     console.log('  $ devData version');
+    console.log('  $ devData analyze --verbose --log-level debug');
+    console.log('  $ devData analyze --datetime "2025-08-05T10:30:00"');
     console.log('');
   });
 
