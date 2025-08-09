@@ -16,6 +16,7 @@ dev_data -h
 ```
 and you should see something like
 
+<img width="715" height="438" alt="Screenshot 2025-08-08 at 9 01 25 PM" src="https://github.com/user-attachments/assets/2571c4ba-d10b-4936-ade5-42b737808451" />
 
 # commands
 
@@ -52,6 +53,12 @@ time as the other metrics.
 ```bash
 dev_data analyze -p
 ```
+will show you something like
+
+<img width="1034" height="758" alt="Screenshot 2025-08-08 at 8 38 57 PM" src="https://github.com/user-attachments/assets/1b37ef31-2525-4613-bb34-8920fc8d32da" />
+
+but the lines and dates will look different on your `dev_data`.
+
 
 ## use an alternate file
 The current setup for the continue.dev plugin puts files for all projects into
