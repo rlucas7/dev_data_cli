@@ -23,6 +23,14 @@ and you should see something like
 
 # commands
 
+## basic help
+
+This contains all the info you need to use really.
+```bash
+dev_data -h
+```
+feel free to continue reading though if you want to not change screens.
+
 ## basic
 The basic command to the CLI, analyzes the javascript files w/'.js' extensions
 and reports back the number of accepted and rejected suggested completions.
