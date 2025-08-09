@@ -1,8 +1,11 @@
 This is a bare bones CLI tool to analyze developer data from using
-continue.dev plugin in vscode.
+[continue.dev](https://github.com/continuedev/continue) plugin in vscode.
 
 The current setup works from the terminal.
 In the future I may connect this into vscode itself as a plugin.
+
+If you find this interesting you may wish to read the manifesto at the
+[amplified.dev](https://amplified.dev/) page, something I believe and have signed on to too.
 
 # installation
 
