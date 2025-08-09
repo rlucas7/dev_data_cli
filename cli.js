@@ -92,7 +92,7 @@ var processJsonl = async function processJsonlFile(filePath, opts, logger) {
 };
 
 program
-  .name('devData')
+  .name('dev_data')
   .description('A simple CLI tool example')
   .option('-v, --verbose', 'Enables verbose mode')
   .option('-f, --filepath <string>', 'Absolute filepath for the autocomplete.jsonl file. Defaults to /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl', undefined)
