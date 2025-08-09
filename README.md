@@ -4,6 +4,19 @@ continue.dev plugin in vscode.
 The current setup works from the terminal.
 In the future I may connect this into vscode itself as a plugin.
 
+# installation
+
+For now this package is not packaged and installed via npm
+so to use it you need to do:
+```bash
+git pull git@github.com:rlucas7/dev_data_cli.git
+cd dev_data_cli
+npm link
+dev_data -h
+```
+and you should see something like
+
+
 # commands
 
 ## basic
@@ -11,13 +24,13 @@ The basic command to the CLI, analyzes the javascript files w/'.js' extensions
 and reports back the number of accepted and rejected suggested completions.
 
 ```bash
-mycli dev_data
+dev_data analyze
 ```
 
 ## verbose output
 If you want to see much more reporting etc.
 ```bash
-mycli dev_data -v
+dev_data analyze -v
 ```
 
 ## filter to specific file extensions
@@ -28,7 +41,7 @@ only `.js` file extensions.
 
 E.g. the following example filters to only python language files.
 ```bash
-mycli dev_data -e py
+dev_data analyze -e py
 ```
 
 ## make a plot
@@ -37,7 +50,7 @@ in a separate process and render that to the user at the same
 time as the other metrics.
 
 ```bash
-mycli dev_data -p
+dev_data analyze -p
 ```
 
 ## use an alternate file
@@ -49,7 +62,7 @@ for analysis (e.g. as in a firm) or some other setup, perhaps after a major/mino
 version change on the continue app.
 
 ```bash
-mycli dev_data -f /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl
+dev_data analyze -f /Users/$USER/.continue/dev_data/0.2.0/autocomplete.jsonl
 ```
 
 # Not implemented
